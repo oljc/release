@@ -1,80 +1,60 @@
-name: 'Simple Release Please'
-description: 'Generate changelog PR and update version based on Conventional Commits'
-author: 'Your Name'
+name: 'release'
+description: 'Automated release management with changelog generation and version bumping based on Conventional Commits'
+author: 'oljc'
 
 branding:
-  icon: 'package'
-  color: 'blue'
+  icon: "tag"
+  color: "black"
 
 inputs:
   token:
-    description: 'GitHub token for creating PRs'
+    description: 'GitHub token for authentication'
     required: true
-    default: ${{ github.token }}
   
   version-file:
-    description: 'Version file path (e.g. package.json, version.txt)'
+    description: 'Path to version file (package.json or plain text)'
     required: false
     default: 'package.json'
   
   changelog-file:
-    description: 'Changelog file path'
+    description: 'Path to changelog file'
     required: false
     default: 'CHANGELOG.md'
   
   branch:
-    description: 'Target branch'
+    description: 'Target branch for release PR'
     required: false
     default: 'main'
   
   branch-prefix:
-    description: 'Release branch prefix'
+    description: 'Prefix for release branch name'
     required: false
     default: 'release-'
   
   version-bump:
-    description: 'Version bump type (auto, major, minor, patch)'
+    description: 'Version bump strategy: auto (detect from commits), major, minor, patch'
     required: false
     default: 'auto'
   
   prerelease:
-    description: 'Prerelease identifier (alpha, beta, rc, etc.)'
+    description: 'Prerelease identifier for pre-release versions (e.g., alpha, beta, rc)'
     required: false
     default: ''
   
   tag-prefix:
-    description: 'Tag prefix (e.g., v, release/)'
+    description: 'Prefix for version tags'
     required: false
     default: 'v'
-  
-  tag:
-    description: 'Create tag automatically after PR merge'
-    required: false
-    default: 'true'
-  
-  release:
-    description: 'Create GitHub Release automatically'
-    required: false
-    default: 'true'
 
 outputs:
-  pr-number:
-    description: 'Created PR number'
+  pr:
+    description: 'Release PR number or merged PR number'
   
-  new-version:
-    description: 'New version number'
+  version:
+    description: 'Version number (new or current)'
   
-  release-created:
-    description: 'Whether a release PR was created'
-  
-  tag-created:
-    description: 'Whether a tag was created'
-  
-  tag-name:
-    description: 'Created tag name'
-  
-  release-url:
-    description: 'GitHub Release URL'
+  published:
+    description: 'Whether the release was published (true) or PR was created (false)'
 
 runs:
   using: 'node20'
