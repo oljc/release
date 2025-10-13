@@ -1,0 +1,82 @@
+name: 'Simple Release Please'
+description: 'Generate changelog PR and update version based on Conventional Commits'
+author: 'Your Name'
+
+branding:
+  icon: 'package'
+  color: 'blue'
+
+inputs:
+  token:
+    description: 'GitHub token for creating PRs'
+    required: true
+    default: ${{ github.token }}
+  
+  version-file:
+    description: 'Version file path (e.g. package.json, version.txt)'
+    required: false
+    default: 'package.json'
+  
+  changelog-file:
+    description: 'Changelog file path'
+    required: false
+    default: 'CHANGELOG.md'
+  
+  branch:
+    description: 'Target branch'
+    required: false
+    default: 'main'
+  
+  branch-prefix:
+    description: 'Release branch prefix'
+    required: false
+    default: 'release-'
+  
+  version-bump:
+    description: 'Version bump type (auto, major, minor, patch)'
+    required: false
+    default: 'auto'
+  
+  prerelease:
+    description: 'Prerelease identifier (alpha, beta, rc, etc.)'
+    required: false
+    default: ''
+  
+  tag-prefix:
+    description: 'Tag prefix (e.g., v, release/)'
+    required: false
+    default: 'v'
+  
+  tag:
+    description: 'Create tag automatically after PR merge'
+    required: false
+    default: 'true'
+  
+  release:
+    description: 'Create GitHub Release automatically'
+    required: false
+    default: 'true'
+
+outputs:
+  pr-number:
+    description: 'Created PR number'
+  
+  new-version:
+    description: 'New version number'
+  
+  release-created:
+    description: 'Whether a release PR was created'
+  
+  tag-created:
+    description: 'Whether a tag was created'
+  
+  tag-name:
+    description: 'Created tag name'
+  
+  release-url:
+    description: 'GitHub Release URL'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+

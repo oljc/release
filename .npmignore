@@ -1,0 +1,11 @@
+# 不需要发布到 npm 的文件
+src/
+examples/
+.github/
+*.md
+!README.md
+.gitignore
+.npmignore
+tsconfig.json
+jest.config.js
+
