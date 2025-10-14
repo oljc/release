@@ -3,6 +3,7 @@ import { context } from '@actions/github';
 import { generateChangelog, parseCommits, updateChangelog } from '@/changelog';
 import { GitHubClient } from '@/github';
 import { bumpVersion, readVersion } from '@/version';
+import { translate } from '@/translate';
 
 const parseReleaseCommit = (msg: string) => {
   const match = msg.match(/^chore\(release\):\s*v?([0-9]+\.[0-9]+\.[0-9]+(?:-[a-zA-Z0-9.]+)?)/);
@@ -46,6 +47,7 @@ async function run() {
     info(`Version: ${version} (${parsed.length} commits)`);
 
     const changelog = generateChangelog(parsed, version, repo.owner, repo.repo);
+    const changelogZh = await translate(changelog, 'Chinese');
     const fullVersion = `${config.tagPrefix}${version}`;
     const title = `chore(release): ${fullVersion}`;
 
@@ -89,7 +91,7 @@ async function run() {
       { path: config.changelogFile, content: updateChangelog(oldChangelog, changelog) },
     ]);
 
-    const body = `# Changelog\n\nThis bumps the version from \`${nowVersion}\` to \`${version}\`, including \`${parsed.length}\` commits.\n\n${changelog}`;
+    const body = `# Changelog\n\nThis bumps the version from \`${nowVersion}\` to \`${version}\`, including \`${parsed.length}\` commits.\n\n${changelog}\n\n------\n\n${changelogZh}`;
     const prNumber = await github.updatePR(branch, config.branch, title, body);
 
     info(`PR #${prNumber} ready`);
