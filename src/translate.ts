@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { getInput } from "@actions/core";
 
-const token = process.env["GITHUB_TOKEN"] || getInput('token', { required: true });
+const token = getInput('ai-token') || process.env["GITHUB_TOKEN"];
 const endpoint = "https://models.github.ai/inference";
 
 const systemPrompt = `

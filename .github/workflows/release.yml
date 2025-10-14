@@ -29,6 +29,7 @@ jobs:
         uses: ./
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          ai-token: ${{ secrets.MODEL_TOKEN }}
           version-file: 'package.json'
           changelog-file: 'CHANGELOG.md'
           branch: 'main'

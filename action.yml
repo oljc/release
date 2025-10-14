@@ -10,6 +10,11 @@ inputs:
   token:
     description: 'GitHub token for authentication'
     required: true
+
+  ai-token:
+    description: 'GitHub AI token for translation'
+    required: false
+    default: ''
   
   version-file:
     description: 'Path to version file (package.json or plain text)'
