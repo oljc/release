@@ -32,3 +32,18 @@ jobs:
           version-file: 'package.json'
           changelog-file: 'CHANGELOG.md'
           branch: 'main'
+      
+      - name: Update major version tag
+        if: steps.release.outputs.published == 'true'
+        run: |
+          VERSION=${{ steps.release.outputs.version }}
+          echo "Released version: $VERSION"
+          
+          # 提取主版本号（如 1.2.3 -> 1）
+          MAJOR_VERSION=$(echo $VERSION | cut -d. -f1)
+          
+          # 创建/更新主版本标签
+          git tag -f "v${MAJOR_VERSION}"
+          git push origin "v${MAJOR_VERSION}" --force
+          
+          echo "Updated v${MAJOR_VERSION} tag to point to v${VERSION}"
