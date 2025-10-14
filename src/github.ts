@@ -21,12 +21,12 @@ export class GitHubClient {
   private git: any;
   private pulls: any;
   private paginate: any;
-
+  private reactions: any;
   constructor() {
     const token = getInput('token', { required: true });
     const { owner, repo } = context.repo;
     const { rest, paginate } = getOctokit(token);
-    const { repos, git, pulls } = rest;
+    const { repos, git, pulls, reactions } = rest;
 
     this.owner = owner;
     this.repo = repo;
@@ -34,6 +34,7 @@ export class GitHubClient {
     this.git = git;
     this.pulls = pulls;
     this.paginate = paginate;
+    this.reactions = reactions;
   }
 
   async fetchLatestTag(sha: string, prefix: string) {
@@ -198,6 +199,9 @@ export class GitHubClient {
       base,
       body,
     });
+
+    await this.addReactions(pr.number, ['+1', 'hooray', 'heart']);
+
     return pr.number;
   }
 
@@ -249,6 +253,19 @@ export class GitHubClient {
       ...(previousTag && { previous_tag_name: previousTag }),
     });
     return data.id;
+  }
+
+  async addReactions(prNumber: number, reactions: string[]) {
+    await Promise.all(
+      reactions.map((content) =>
+        this.reactions.createForIssue({
+          owner: this.owner,
+          repo: this.repo,
+          issue_number: prNumber,
+          content,
+        })
+      )
+    );
   }
 }
 
