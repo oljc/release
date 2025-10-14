@@ -1,6 +1,6 @@
 {
   "name": "release",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Auto Release based on Conventional Commits",
   "main": "dist/index.js",
   "scripts": {
