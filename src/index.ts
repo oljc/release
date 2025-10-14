@@ -12,13 +12,13 @@ const parseReleaseCommit = (msg: string) => {
 async function run() {
   try {
     const config = {
-      versionFile: getInput('version-file'),
-      changelogFile: getInput('changelog-file'),
-      branch: getInput('branch'),
-      branchPrefix: getInput('branch-prefix'),
-      versionBump: getInput('version-bump'),
-      channel: getInput('channel') || 'latest',
-      tagPrefix: getInput('tag-prefix'),
+      versionFile: getInput('version-file') || 'package.json',
+      changelogFile: getInput('changelog-file') || 'CHANGELOG.md',
+      branch: getInput('branch') || 'main',
+      branchPrefix: getInput('branch-prefix') || 'release-',
+      versionBump: getInput('version-bump') || 'auto',
+      channel: (getInput('channel') || 'latest').trim().toLowerCase(),
+      tagPrefix: getInput('tag-prefix') || 'v',
     };
 
     const github = new GitHubClient();

@@ -33559,13 +33559,14 @@ const bumpVersion = ({ current, commits, bump = 'auto', channel = 'latest', }) =
     const ver = (0, semver_1.clean)(current) || '0.0.0';
     if (!(0, semver_1.valid)(ver))
         throw new Error(`Invalid version: ${current}`);
-    // 验证 channel 类型
+    // 标准化并验证 channel 类型
     const validChannels = ['alpha', 'beta', 'rc', 'latest'];
-    if (!validChannels.includes(channel)) {
-        throw new Error(`Invalid channel: ${channel}. Must be one of: ${validChannels.join(', ')}`);
+    const normalizedChannel = (channel || 'latest').trim().toLowerCase();
+    if (!validChannels.includes(normalizedChannel)) {
+        throw new Error(`Invalid channel: "${channel}". Must be one of: ${validChannels.join(', ')}`);
     }
     // 如果是 latest，自动计算稳定版本
-    if (channel === 'latest') {
+    if (normalizedChannel === 'latest') {
         const type = bump === 'auto' ? determineBump(commits) : bump;
         const result = (0, semver_1.inc)(ver, type);
         if (!result)
@@ -33574,8 +33575,8 @@ const bumpVersion = ({ current, commits, bump = 'auto', channel = 'latest', }) =
     }
     // 处理 alpha、beta、rc 预发布版本
     const curr = (0, semver_1.prerelease)(ver);
-    const type = curr && curr[0] === channel ? 'prerelease' : `pre${bump === 'auto' ? determineBump(commits) : bump}`;
-    const result = (0, semver_1.inc)(ver, type, channel);
+    const type = curr && curr[0] === normalizedChannel ? 'prerelease' : `pre${bump === 'auto' ? determineBump(commits) : bump}`;
+    const result = (0, semver_1.inc)(ver, type, normalizedChannel);
     if (!result)
         throw new Error(`Failed to bump ${ver} with ${type}`);
     return result;
@@ -35532,13 +35533,13 @@ const parseReleaseCommit = (msg) => {
 async function run() {
     try {
         const config = {
-            versionFile: (0, core_1.getInput)('version-file'),
-            changelogFile: (0, core_1.getInput)('changelog-file'),
-            branch: (0, core_1.getInput)('branch'),
-            branchPrefix: (0, core_1.getInput)('branch-prefix'),
-            versionBump: (0, core_1.getInput)('version-bump'),
-            channel: (0, core_1.getInput)('channel') || 'latest',
-            tagPrefix: (0, core_1.getInput)('tag-prefix'),
+            versionFile: (0, core_1.getInput)('version-file') || 'package.json',
+            changelogFile: (0, core_1.getInput)('changelog-file') || 'CHANGELOG.md',
+            branch: (0, core_1.getInput)('branch') || 'main',
+            branchPrefix: (0, core_1.getInput)('branch-prefix') || 'release-',
+            versionBump: (0, core_1.getInput)('version-bump') || 'auto',
+            channel: ((0, core_1.getInput)('channel') || 'latest').trim().toLowerCase(),
+            tagPrefix: (0, core_1.getInput)('tag-prefix') || 'v',
         };
         const github = new github_2.GitHubClient();
         const { sha, repo } = github_1.context;
