@@ -70,8 +70,7 @@ export const generateChangelog = (commits: ParsedCommit[], version: string, owne
 
   const formatCommit = (c: ParsedCommit, showType?: string) => {
     const parts = [];
-    if (showType) parts.push(`**${showType}:**`);
-    if (c.scope) parts.push(`**${c.scope}:**`);
+    if (showType) parts.push(c.scope ? `**${showType}(${c.scope}):**` : `**${showType}:**`);
 
     const prMatch = c.subject.match(/\(#(\d+)\)$/);
     const subject = prMatch ? c.subject.replace(/\s*\(#\d+\)$/, '') : c.subject;
