@@ -33297,13 +33297,14 @@ class GitHubClient {
         const token = (0, core_1.getInput)('token', { required: true });
         const { owner, repo } = github_1.context.repo;
         const { rest, paginate } = (0, github_1.getOctokit)(token);
-        const { repos, git, pulls } = rest;
+        const { repos, git, pulls, reactions } = rest;
         this.owner = owner;
         this.repo = repo;
         this.repos = repos;
         this.git = git;
         this.pulls = pulls;
         this.paginate = paginate;
+        this.reactions = reactions;
     }
     async fetchLatestTag(sha, prefix) {
         try {
@@ -33453,6 +33454,7 @@ class GitHubClient {
             base,
             body,
         });
+        await this.addReactions(pr.number, ['+1', 'hooray', 'heart']);
         return pr.number;
     }
     async findMergedPR(sha) {
@@ -33499,6 +33501,14 @@ class GitHubClient {
             ...(previousTag && { previous_tag_name: previousTag }),
         });
         return data.id;
+    }
+    async addReactions(prNumber, reactions) {
+        await Promise.all(reactions.map((content) => this.reactions.createForIssue({
+            owner: this.owner,
+            repo: this.repo,
+            issue_number: prNumber,
+            content,
+        })));
     }
 }
 exports.GitHubClient = GitHubClient;
