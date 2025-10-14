@@ -17,7 +17,7 @@ async function run() {
       branch: getInput('branch'),
       branchPrefix: getInput('branch-prefix'),
       versionBump: getInput('version-bump'),
-      prerelease: getInput('prerelease'),
+      channel: getInput('channel') || 'latest',
       tagPrefix: getInput('tag-prefix'),
     };
 
@@ -40,7 +40,7 @@ async function run() {
           current: nowVersion,
           commits: parsed,
           bump: config.versionBump,
-          prerelease: config.prerelease,
+          channel: config.channel,
         });
 
     info(`Version: ${version} (${parsed.length} commits)`);
@@ -58,7 +58,7 @@ async function run() {
         fullVersion,
         fullVersion,
         changelog.split('\n').slice(2).join('\n').trim(),
-        !!(config.prerelease && version.includes(config.prerelease)),
+        config.channel !== 'latest',
         lastTag?.name,
       );
 
@@ -69,7 +69,7 @@ async function run() {
       return;
     }
 
-    const branch = `${config.branchPrefix}${fullVersion}`;
+    const branch = `${config.branchPrefix}${config.branch}-${config.channel}`;
 
     info(`Preparing branch ${branch}`);
     await github.ensureBranch(branch, config.branch);

@@ -4,16 +4,7 @@
 
 自动生成 changelog、升级版本号、创建发布 PR，并在合并后自动发布 GitHub Release。
 
-## ✨ 特性
-
-- 🤖 **全自动化** - 从 commit 到 release 全流程自动化
-- 📝 **智能 Changelog** - 基于 Conventional Commits 自动生成结构化变更日志
-- 🔢 **语义化版本** - 自动检测版本升级类型（major/minor/patch）
-- 🎯 **灵活配置** - 支持自定义版本文件、分支、tag 前缀等
-- 🏷️ **预发布支持** - 支持 alpha、beta、rc 等预发布版本
-- 📦 **零配置** - 开箱即用，默认配置适用大多数场景
-
-## 快速开始
+## 使用
 
 在你的仓库中创建 `.github/workflows/release.yml`：
 
@@ -40,14 +31,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-## 工作流程
-
-1. **提交代码** - 使用 Conventional Commits 规范提交代码
-2. **自动分析** - Action 分析 commits 并确定版本升级类型
-3. **创建 PR** - 自动创建包含 changelog 和版本更新的 PR
-4. **审核合并** - 审核 PR 内容并合并
-5. **自动发布** - 合并后自动创建 tag 和 GitHub Release
-
 ## 配置选项
 
 ### Inputs
@@ -60,7 +43,7 @@ jobs:
 | `branch` | 目标分支 | `main` | ❌ |
 | `branch-prefix` | Release 分支前缀 | `release-` | ❌ |
 | `version-bump` | 版本升级策略 | `auto` | ❌ |
-| `prerelease` | 预发布标识符 | - | ❌ |
+| `channel` | 发布渠道 (alpha/beta/rc/latest) | `latest` | ❌ |
 | `tag-prefix` | Tag 前缀 | `v` | ❌ |
 
 ### Outputs
@@ -91,12 +74,18 @@ jobs:
     version-bump: minor  # major | minor | patch
 ```
 
-### 预发布版本
+### 发布渠道
 
 ```yaml
+# 预发布版本
 - uses: oljc/release@v1
   with:
-    prerelease: beta  # alpha | beta | rc
+    channel: beta  # alpha | beta | rc
+
+# 稳定版本（默认）
+- uses: oljc/release@v1
+  with:
+    channel: latest
 ```
 
 ### 自定义分支和前缀

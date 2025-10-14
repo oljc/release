@@ -30,27 +30,35 @@ export const bumpVersion = ({
   current,
   commits,
   bump = 'auto',
-  prerelease: pre,
+  channel = 'latest',
 }: {
   current: string;
   commits: ParsedCommit[];
   bump?: string;
-  prerelease?: string;
+  channel?: string;
 }): string => {
   const ver = clean(current) || '0.0.0';
   if (!valid(ver)) throw new Error(`Invalid version: ${current}`);
 
-  if (pre) {
-    const curr = prerelease(ver);
-    const type =
-      curr && curr[0] === pre ? 'prerelease' : (`pre${bump === 'auto' ? determineBump(commits) : bump}` as ReleaseType);
-    const result = inc(ver, type, pre);
+  // 验证 channel 类型
+  const validChannels = ['alpha', 'beta', 'rc', 'latest'];
+  if (!validChannels.includes(channel)) {
+    throw new Error(`Invalid channel: ${channel}. Must be one of: ${validChannels.join(', ')}`);
+  }
+
+  // 如果是 latest，自动计算稳定版本
+  if (channel === 'latest') {
+    const type = bump === 'auto' ? determineBump(commits) : (bump as ReleaseType);
+    const result = inc(ver, type);
     if (!result) throw new Error(`Failed to bump ${ver} with ${type}`);
     return result;
   }
 
-  const type = bump === 'auto' ? determineBump(commits) : (bump as ReleaseType);
-  const result = inc(ver, type);
+  // 处理 alpha、beta、rc 预发布版本
+  const curr = prerelease(ver);
+  const type =
+    curr && curr[0] === channel ? 'prerelease' : (`pre${bump === 'auto' ? determineBump(commits) : bump}` as ReleaseType);
+  const result = inc(ver, type, channel);
   if (!result) throw new Error(`Failed to bump ${ver} with ${type}`);
   return result;
 };

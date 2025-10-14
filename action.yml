@@ -36,10 +36,10 @@ inputs:
     required: false
     default: 'auto'
   
-  prerelease:
-    description: 'Prerelease identifier for pre-release versions (e.g., alpha, beta, rc)'
+  channel:
+    description: 'Release channel: alpha, beta, rc, or latest (auto-calculated stable version)'
     required: false
-    default: ''
+    default: 'latest'
   
   tag-prefix:
     description: 'Prefix for version tags'

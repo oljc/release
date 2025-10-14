@@ -33555,20 +33555,27 @@ const writeVersion = async (file, ver) => {
     }
 };
 exports.writeVersion = writeVersion;
-const bumpVersion = ({ current, commits, bump = 'auto', prerelease: pre, }) => {
+const bumpVersion = ({ current, commits, bump = 'auto', channel = 'latest', }) => {
     const ver = (0, semver_1.clean)(current) || '0.0.0';
     if (!(0, semver_1.valid)(ver))
         throw new Error(`Invalid version: ${current}`);
-    if (pre) {
-        const curr = (0, semver_1.prerelease)(ver);
-        const type = curr && curr[0] === pre ? 'prerelease' : `pre${bump === 'auto' ? determineBump(commits) : bump}`;
-        const result = (0, semver_1.inc)(ver, type, pre);
+    // 验证 channel 类型
+    const validChannels = ['alpha', 'beta', 'rc', 'latest'];
+    if (!validChannels.includes(channel)) {
+        throw new Error(`Invalid channel: ${channel}. Must be one of: ${validChannels.join(', ')}`);
+    }
+    // 如果是 latest，自动计算稳定版本
+    if (channel === 'latest') {
+        const type = bump === 'auto' ? determineBump(commits) : bump;
+        const result = (0, semver_1.inc)(ver, type);
         if (!result)
             throw new Error(`Failed to bump ${ver} with ${type}`);
         return result;
     }
-    const type = bump === 'auto' ? determineBump(commits) : bump;
-    const result = (0, semver_1.inc)(ver, type);
+    // 处理 alpha、beta、rc 预发布版本
+    const curr = (0, semver_1.prerelease)(ver);
+    const type = curr && curr[0] === channel ? 'prerelease' : `pre${bump === 'auto' ? determineBump(commits) : bump}`;
+    const result = (0, semver_1.inc)(ver, type, channel);
     if (!result)
         throw new Error(`Failed to bump ${ver} with ${type}`);
     return result;
@@ -35530,7 +35537,7 @@ async function run() {
             branch: (0, core_1.getInput)('branch'),
             branchPrefix: (0, core_1.getInput)('branch-prefix'),
             versionBump: (0, core_1.getInput)('version-bump'),
-            prerelease: (0, core_1.getInput)('prerelease'),
+            channel: (0, core_1.getInput)('channel') || 'latest',
             tagPrefix: (0, core_1.getInput)('tag-prefix'),
         };
         const github = new github_2.GitHubClient();
@@ -35550,7 +35557,7 @@ async function run() {
                 current: nowVersion,
                 commits: parsed,
                 bump: config.versionBump,
-                prerelease: config.prerelease,
+                channel: config.channel,
             });
         (0, core_1.info)(`Version: ${version} (${parsed.length} commits)`);
         const changelog = (0, changelog_1.generateChangelog)(parsed, version, repo.owner, repo.repo);
@@ -35560,14 +35567,14 @@ async function run() {
             (0, core_1.info)(`Creating tag ${fullVersion}`);
             await github.createTag(fullVersion, sha, `Release ${fullVersion}`);
             (0, core_1.info)('Creating release');
-            await github.createRelease(fullVersion, fullVersion, changelog.split('\n').slice(2).join('\n').trim(), !!(config.prerelease && version.includes(config.prerelease)), lastTag?.name);
+            await github.createRelease(fullVersion, fullVersion, changelog.split('\n').slice(2).join('\n').trim(), config.channel !== 'latest', lastTag?.name);
             (0, core_1.info)('Release published');
             (0, core_1.setOutput)('pr', pr.number);
             (0, core_1.setOutput)('version', version);
             (0, core_1.setOutput)('published', true);
             return;
         }
-        const branch = `${config.branchPrefix}${fullVersion}`;
+        const branch = `${config.branchPrefix}${config.branch}-${config.channel}`;
         (0, core_1.info)(`Preparing branch ${branch}`);
         await github.ensureBranch(branch, config.branch);
         const [oldChangelog, versionContent] = await Promise.all([
