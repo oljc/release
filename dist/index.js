@@ -33156,6 +33156,8 @@ const semver_1 = __nccwpck_require__(7498);
 const parseCommits = (commits) => commits.reduce((acc, c) => {
     if (!c.message)
         return acc;
+    if (c.author.type === 'Bot')
+        return acc;
     const r = (0, conventional_commits_parser_1.sync)(c.message, {
         mergePattern: /^Merge pull request #(\d+) from (.*)$/,
         mergeCorrespondence: ['id', 'source'],
@@ -33382,6 +33384,7 @@ class GitHubClient {
                     login: c.author?.login || '',
                     avatar: c.author?.avatar_url || '',
                     html_url: c.author?.html_url || '',
+                    type: c.author?.type || '',
                 },
             }))
                 .filter((c) => !/^chore\(release\):\s*/.test(c.message));

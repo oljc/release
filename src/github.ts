@@ -11,6 +11,7 @@ export interface Commit {
     login?: string;
     avatar?: string;
     html_url?: string;
+    type?: string; // "User" | "Bot"
   };
 }
 
@@ -117,6 +118,7 @@ export class GitHubClient {
               login: c.author?.login || '',
               avatar: c.author?.avatar_url || '',
               html_url: c.author?.html_url || '',
+              type: c.author?.type || '',
             },
           }),
         )

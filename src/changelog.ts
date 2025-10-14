@@ -15,6 +15,8 @@ export interface ParsedCommit extends Omit<Commit, 'message'> {
 export const parseCommits = (commits: Commit[]): ParsedCommit[] =>
   commits.reduce<ParsedCommit[]>((acc, c) => {
     if (!c.message) return acc;
+    
+    if (c.author.type === 'Bot') return acc;
 
     const r = sync(c.message, {
       mergePattern: /^Merge pull request #(\d+) from (.*)$/,
