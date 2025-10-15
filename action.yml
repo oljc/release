@@ -10,21 +10,31 @@ inputs:
   token:
     description: 'GitHub token for authentication'
     required: true
-
-  ai-token:
-    description: 'GitHub AI token for translation'
-    required: false
-    default: ''
   
   version-file:
     description: 'Path to version file (package.json or plain text)'
     required: false
     default: 'package.json'
   
-  changelog-file:
-    description: 'Path to changelog file'
+  changelog-en:
+    description: 'Path for English changelog (empty to skip)'
     required: false
     default: 'CHANGELOG.md'
+  
+  changelog-zh:
+    description: 'Path for Chinese changelog (empty to skip)'
+    required: false
+    default: 'CHANGELOG.zh.md'
+  
+  locale:
+    description: 'Primary language for changelog generation: en, zh'
+    required: false
+    default: 'en'
+  
+  translate:
+    description: 'Enable automatic translation for secondary language changelog'
+    required: false
+    default: 'false'
   
   branch:
     description: 'Target branch for release PR'
@@ -36,7 +46,7 @@ inputs:
     required: false
     default: 'release-'
   
-  version-bump:
+  bump:
     description: 'Version bump strategy: auto (detect from commits), major, minor, patch'
     required: false
     default: 'auto'

@@ -32,7 +32,9 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version-file: 'package.json'
-          changelog-file: 'CHANGELOG.md'
+          changelog-en: 'CHANGELOG.md'
+          changelog-zh: 'CHANGELOG.zh.md'
+          translate: 'true'
           branch: 'main'
       
       - name: Update major version tag

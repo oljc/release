@@ -10,14 +10,23 @@ const parseReleaseCommit = (msg: string) => {
   return match ? match[1] : null;
 };
 
+const updateVersionFile = (content: string | null, version: string, filePath: string) => {
+  if (!filePath.endsWith('.json') || !content) return `${version}\n`;
+  const json = JSON.parse(content);
+  return `${JSON.stringify({ ...json, version }, null, 2)}\n`;
+};
+
 async function run() {
   try {
     const config = {
       versionFile: getInput('version-file') || 'package.json',
-      changelogFile: getInput('changelog-file') || 'CHANGELOG.md',
+      changelogEn: getInput('changelog-en') || 'CHANGELOG.md',
+      changelogZh: getInput('changelog-zh') || 'CHANGELOG.zh.md',
+      locale: (getInput('locale') || 'en').trim().toLowerCase(),
+      translate: getInput('translate') === 'true',
       branch: getInput('branch') || 'main',
       branchPrefix: getInput('branch-prefix') || 'release-',
-      versionBump: getInput('version-bump') || 'auto',
+      bump: getInput('bump') || 'auto',
       channel: (getInput('channel') || 'latest').trim().toLowerCase(),
       tagPrefix: getInput('tag-prefix') || 'v',
     };
@@ -40,14 +49,16 @@ async function run() {
       : bumpVersion({
           current: nowVersion,
           commits: parsed,
-          bump: config.versionBump,
+          bump: config.bump,
           channel: config.channel,
         });
 
     info(`Version: ${version} (${parsed.length} commits)`);
 
+    const isZh = config.locale === 'zh';
     const changelog = generateChangelog(parsed, version, repo.owner, repo.repo);
-    const changelogZh = await translate(changelog, 'Chinese');
+    const translated = config.translate ? await translate(changelog, isZh ? 'English' : 'Chinese') : '';
+
     const fullVersion = `${config.tagPrefix}${version}`;
     const title = `chore(release): ${fullVersion}`;
 
@@ -56,10 +67,11 @@ async function run() {
       await github.createTag(fullVersion, sha, `Release ${fullVersion}`);
 
       info('Creating release');
+      const body = changelog.split('\n').slice(2).join('\n').trim();
       await github.createRelease(
         fullVersion,
         fullVersion,
-        changelog.split('\n').slice(2).join('\n').trim(),
+        body,
         config.channel !== 'latest',
         lastTag?.name,
       );
@@ -76,23 +88,37 @@ async function run() {
     info(`Preparing branch ${branch}`);
     await github.ensureBranch(branch, config.branch);
 
-    const [oldChangelog, versionContent] = await Promise.all([
-      github.fetchFile(config.changelogFile, branch),
-      github.fetchFile(config.versionFile, branch),
-    ]);
+    const primaryPath = isZh ? config.changelogZh : config.changelogEn;
+    const secondaryPath = config.translate ? (isZh ? config.changelogEn : config.changelogZh) : null;
+    
+    const filePaths = [config.versionFile, primaryPath, secondaryPath].filter(Boolean) as string[];
+    const fileContents = await Promise.all(filePaths.map(path => github.fetchFile(path, branch)));
 
-    const updatedVersion =
-      config.versionFile.endsWith('.json') && versionContent
-        ? `${JSON.stringify({ ...JSON.parse(versionContent), version }, null, 2)}\n`
-        : `${version}\n`;
+    const filesToCommit = [
+      { path: config.versionFile, content: updateVersionFile(fileContents[0], version, config.versionFile) },
+      { path: primaryPath, content: updateChangelog(fileContents[1] || '', changelog) }
+    ];
 
-    await github.commitFiles(branch, title, [
-      { path: config.versionFile, content: updatedVersion },
-      { path: config.changelogFile, content: updateChangelog(oldChangelog, changelog) },
-    ]);
+    if (config.translate && secondaryPath && translated) {
+      filesToCommit.push({
+        path: secondaryPath,
+        content: updateChangelog(fileContents[2] || '', translated)
+      });
+    }
 
-    const body = `# Changelog\n\nThis bumps the version from \`${nowVersion}\` to \`${version}\`, including \`${parsed.length}\` commits.\n\n${changelog}\n\n------\n\n${changelogZh}`;
-    const prNumber = await github.updatePR(branch, config.branch, title, body);
+    await github.commitFiles(branch, title, filesToCommit);
+
+    // 构建 PR body
+    const prBody = [
+      '# Changelog',
+      '',
+      `This bumps the version from \`${nowVersion}\` to \`${version}\`, including \`${parsed.length}\` commits.`,
+      '',
+      changelog,
+      translated ? `\n------\n\n${translated}` : ''
+    ].filter(Boolean).join('\n');
+
+    const prNumber = await github.updatePR(branch, config.branch, title, prBody);
 
     info(`PR #${prNumber} ready`);
     setOutput('pr', prNumber);
