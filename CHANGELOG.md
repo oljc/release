@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.2.3 (2025-10-15)
+
+### 🐛 Bug Fixes
+
+* force update release branch to keep single commit in PR @oljc ([256bfb5](https://github.com/oljc/release/commit/256bfb56f0928eb0a7720dd2411ac316992198a2))
+
+* update translation functionality to handle missing API token @oljc ([0f4d4f9](https://github.com/oljc/release/commit/0f4d4f9057aa72d35a08d101f1ef759e982df014))
+
+* enhance translation function to accept optional token input @oljc ([dc80936](https://github.com/oljc/release/commit/dc80936ffb86b949745e76bf03a7f9757a70835f))
+
+### 🔧 Others
+
+* **revert:** revert translation function api @oljc ([fa6bc90](https://github.com/oljc/release/commit/fa6bc90631aea6a36bc4e73287e362b9cf12781e))
+
+
 ## 1.2.2 (2025-10-15)
 
 ### 🐛 Bug Fixes
