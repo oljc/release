@@ -27,8 +27,8 @@ jobs:
       - name: Release
         id: release
         uses: ./
-        env:
-          API_TOKEN: ${{ secrets.MODEL_TOKEN }}
+        # env:
+        #   API_TOKEN: ${{ secrets.MODEL_TOKEN }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version-file: 'package.json'

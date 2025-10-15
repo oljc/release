@@ -1,7 +1,6 @@
 import OpenAI from "openai";
-const token = process.env["API_TOKEN"];
-const endpoint = "https://models.github.ai/inference";
 
+const endpoint = "https://models.github.ai/inference";
 const systemPrompt = `
 You are a professional technical translator specialized in open-source software changelogs.
 Your task is to translate Changelog into the required language.
@@ -16,6 +15,11 @@ Requirements:
 `;
 
 export async function translate(content: string, target: string) {
+    const token = process.env["API_TOKEN"] || process.env["GITHUB_TOKEN"];
+    if (!token) {
+        console.warn("No API token available, skipping translation");
+        return "";
+    }
     const client = new OpenAI({ baseURL: endpoint, apiKey: token });
     const response = await client.chat.completions.create({
         model: "openai/gpt-4.1",

@@ -33400,12 +33400,16 @@ class GitHubClient {
         const { data } = await this.git.getRef({ owner: this.owner, repo: this.repo, ref: `heads/${base}` });
         await this.git.createRef({ owner: this.owner, repo: this.repo, ref: `refs/heads/${branch}`, sha: data.object.sha });
     }
-    async commitFiles(branch, message, files) {
-        const { data: ref } = await this.git.getRef({ owner: this.owner, repo: this.repo, ref: `heads/${branch}` });
+    async commitFiles(branch, message, files, base) {
+        const { data: baseRef } = await this.git.getRef({
+            owner: this.owner,
+            repo: this.repo,
+            ref: `heads/${base}`
+        });
         const { data: commit } = await this.git.getCommit({
             owner: this.owner,
             repo: this.repo,
-            commit_sha: ref.object.sha,
+            commit_sha: baseRef.object.sha,
         });
         const tree = await Promise.all(files.map(async (f) => {
             const { data: blob } = await this.git.createBlob({
@@ -33427,9 +33431,15 @@ class GitHubClient {
             repo: this.repo,
             message,
             tree: newTree.sha,
-            parents: [ref.object.sha],
+            parents: [baseRef.object.sha],
         });
-        await this.git.updateRef({ owner: this.owner, repo: this.repo, ref: `heads/${branch}`, sha: newCommit.sha });
+        await this.git.updateRef({
+            owner: this.owner,
+            repo: this.repo,
+            ref: `heads/${branch}`,
+            sha: newCommit.sha,
+            force: true
+        });
     }
     async updatePR(branch, base, title, body) {
         const { data: existingPRs } = await this.pulls.list({
@@ -33533,7 +33543,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.translate = translate;
 const openai_1 = __importDefault(__nccwpck_require__(5185));
-const token = process.env["API_TOKEN"];
 const endpoint = "https://models.github.ai/inference";
 const systemPrompt = `
 You are a professional technical translator specialized in open-source software changelogs.
@@ -33548,6 +33557,11 @@ Requirements:
 - If the text contains PR numbers, issue links, or author handles (#123, @user), keep them untouched
 `;
 async function translate(content, target) {
+    const token = process.env["API_TOKEN"] || process.env["GITHUB_TOKEN"];
+    if (!token) {
+        console.warn("No API token available, skipping translation");
+        return "";
+    }
     const client = new openai_1.default({ baseURL: endpoint, apiKey: token });
     const response = await client.chat.completions.create({
         model: "openai/gpt-4.1",
@@ -45031,7 +45045,7 @@ async function run() {
                 content: (0, changelog_1.updateChangelog)(fileContents[2] || '', translated)
             });
         }
-        await github.commitFiles(branch, title, filesToCommit);
+        await github.commitFiles(branch, title, filesToCommit, config.branch);
         // 构建 PR body
         const prBody = [
             '# Changelog',
