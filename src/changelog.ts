@@ -26,12 +26,14 @@ export const parseCommits = (commits: Commit[]): ParsedCommit[] =>
     if (!r.type) return acc;
 
     acc.push({
-      type: r.type,
+      type: r.type.replace('!', ''),
       scope: r.scope || null,
       subject: r.subject || c.message.split('\n')[0],
       body: r.body || null,
       footer: r.footer || null,
-      breaking: (r.notes || []).filter((n: any) => n.title === 'BREAKING CHANGE'),
+      breaking: /!/.test(r.type) 
+        ? [{ title: 'BREAKING CHANGE', text: r.subject || '' }]
+        : (r.notes || []).filter((n: any) => n.title === 'BREAKING CHANGE'),
       sha: c.sha,
       author: c.author,
     });
@@ -136,10 +138,10 @@ export const updateChangelog = (old: string, content: string) => {
 
   blocks.forEach((block) => {
     const ver = block.match(/^([\w.-]+)/)?.[1];
-    if (ver) versions.set(ver, block);
+    if (ver) versions.set(ver, block.trim());
   });
 
-  versions.set(newVer, content.replace(/^##\s*/, ''));
+  versions.set(newVer, content.replace(/^##\s*/, '').trim());
 
   const sorted = Array.from(versions.keys())
     .sort((a, b) => {
@@ -151,5 +153,5 @@ export const updateChangelog = (old: string, content: string) => {
     })
     .map((v) => `## ${versions.get(v)}`);
 
-  return `${head.trim()}\n\n${sorted.join('\n\n')}\n`;
+  return `${head.trim()}\n\n${sorted.join('\n\n\n')}\n`;
 };
