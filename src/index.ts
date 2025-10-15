@@ -106,7 +106,7 @@ async function run() {
       });
     }
 
-    await github.commitFiles(branch, title, filesToCommit);
+    await github.commitFiles(branch, title, filesToCommit, config.branch);
 
     // 构建 PR body
     const prBody = [

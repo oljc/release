@@ -136,12 +136,16 @@ export class GitHubClient {
     await this.git.createRef({ owner: this.owner, repo: this.repo, ref: `refs/heads/${branch}`, sha: data.object.sha });
   }
 
-  async commitFiles(branch: string, message: string, files: Array<{ path: string; content: string }>) {
-    const { data: ref } = await this.git.getRef({ owner: this.owner, repo: this.repo, ref: `heads/${branch}` });
+  async commitFiles(branch: string, message: string, files: Array<{ path: string; content: string }>, base: string) {
+    const { data: baseRef } = await this.git.getRef({ 
+      owner: this.owner, 
+      repo: this.repo, 
+      ref: `heads/${base}` 
+    });
     const { data: commit } = await this.git.getCommit({
       owner: this.owner,
       repo: this.repo,
-      commit_sha: ref.object.sha,
+      commit_sha: baseRef.object.sha,
     });
 
     const tree = await Promise.all(
@@ -167,10 +171,16 @@ export class GitHubClient {
       repo: this.repo,
       message,
       tree: newTree.sha,
-      parents: [ref.object.sha],
+      parents: [baseRef.object.sha],
     });
 
-    await this.git.updateRef({ owner: this.owner, repo: this.repo, ref: `heads/${branch}`, sha: newCommit.sha });
+    await this.git.updateRef({ 
+      owner: this.owner, 
+      repo: this.repo, 
+      ref: `heads/${branch}`, 
+      sha: newCommit.sha,
+      force: true 
+    });
   }
 
   async updatePR(branch: string, base: string, title: string, body: string) {
