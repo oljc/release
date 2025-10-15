@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 
 * fix scopes format error @oljc ([0d7e75b](https://github.com/oljc/release/commit/0d7e75b4d2d8fd20106ce74a463c27a065339cf3))
 
+* improve changelog parsing and formatting @oljc ([b860d9c](https://github.com/oljc/release/commit/b860d9cb34295d12d4e020aabcdd9bbdec2891f5))
+
 ### 🔧 Others
 
 * **chore:** integrate ai translation for changelog @oljc ([00d6502](https://github.com/oljc/release/commit/00d650261025170ed82254d1764b3227764846dc))
@@ -24,6 +26,8 @@ All notable changes to this project will be documented in this file.
 ### 🐛 Bug Fixes
 
 * enhance configuration defaults and normalize channel input handling @oljc ([43c7d0d](https://github.com/oljc/release/commit/43c7d0d1fc77fd4e7580d4a268764f0f7c644d9d))
+
+
 
 
 
@@ -57,6 +61,8 @@ All notable changes to this project will be documented in this file.
 
 
 
+
+
 ## 1.1.0 (2025-10-13)
 
 ### ✨ Features
@@ -74,6 +80,7 @@ All notable changes to this project will be documented in this file.
 * **chore:** update package name and version, and add dist files @oljc ([658c866](https://github.com/oljc/release/commit/658c866fcd7a5a21331fef91d92161d4393d5391))
 
 * **chore:** update copyright year and holder in LICENSE file @oljc ([5881716](https://github.com/oljc/release/commit/5881716f3087be73472526f103d0481c7d4abc73))
+
 
 
 
