@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 1.2.2 (2025-10-14)
+## 1.2.2 (2025-10-15)
 
 ### 🐛 Bug Fixes
 
@@ -32,6 +32,8 @@ All notable changes to this project will be documented in this file.
 
 
 
+
+
 ## 1.2.0 (2025-10-14)
 
 ### ✨ Features
@@ -43,6 +45,8 @@ All notable changes to this project will be documented in this file.
 ### 🔧 Others
 
 * **ci:** add major version tag update step @oljc ([3604f35](https://github.com/oljc/release/commit/3604f35e53b7209589ade20b704648b2f1530099))
+
+
 
 
 
@@ -70,6 +74,7 @@ All notable changes to this project will be documented in this file.
 * **chore:** update package name and version, and add dist files @oljc ([658c866](https://github.com/oljc/release/commit/658c866fcd7a5a21331fef91d92161d4393d5391))
 
 * **chore:** update copyright year and holder in LICENSE file @oljc ([5881716](https://github.com/oljc/release/commit/5881716f3087be73472526f103d0481c7d4abc73))
+
 
 
 
