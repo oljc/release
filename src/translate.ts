@@ -1,3 +1,4 @@
+import { getInput } from '@actions/core';
 import OpenAI from "openai";
 
 const endpoint = "https://models.github.ai/inference";
@@ -15,7 +16,7 @@ Requirements:
 `;
 
 export async function translate(content: string, target: string) {
-    const token = process.env["API_TOKEN"] || process.env["GITHUB_TOKEN"];
+    const token = process.env["API_TOKEN"] || process.env["GITHUB_TOKEN"] || getInput('token', { required: false });
     if (!token) {
         console.warn("No API token available, skipping translation");
         return "";

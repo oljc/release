@@ -33542,6 +33542,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.translate = translate;
+const core_1 = __nccwpck_require__(6966);
 const openai_1 = __importDefault(__nccwpck_require__(5185));
 const endpoint = "https://models.github.ai/inference";
 const systemPrompt = `
@@ -33557,7 +33558,7 @@ Requirements:
 - If the text contains PR numbers, issue links, or author handles (#123, @user), keep them untouched
 `;
 async function translate(content, target) {
-    const token = process.env["API_TOKEN"] || process.env["GITHUB_TOKEN"];
+    const token = process.env["API_TOKEN"] || process.env["GITHUB_TOKEN"] || (0, core_1.getInput)('token', { required: false });
     if (!token) {
         console.warn("No API token available, skipping translation");
         return "";
